@@ -1,3 +1,5 @@
+import csv
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -31,6 +33,29 @@ def plot_streamflow(dates, flows, sites):
     plt.show()
 
 
+def summarize(dates, flows, sites):
+    # Excel-equivalent check for 10163000: MAX = 131.0 cfs, AVERAGE = 56.9523611111 cfs.
+    print(f"{'Gauge':<10}{'Max (cfs)':>10}   {'Date of max':<19}{'Min (cfs)':>10}{'Avg (cfs)':>10}")
+    with open("streamflow_summary.csv", "w", newline="") as summary_file:
+        writer = csv.writer(summary_file)
+        writer.writerow(["Gauge", "Max (cfs)", "Date of max", "Min (cfs)", "Avg (cfs)"])
+
+        for column, site in enumerate(sites):
+            gauge_flows = flows[:, column]
+            max_index = np.argmax(gauge_flows)
+            maximum = float(np.max(gauge_flows))
+            minimum = float(np.min(gauge_flows))
+            average = float(np.mean(gauge_flows))
+            date_of_max = dates[max_index]
+
+            print(
+                f"{site:<10}{maximum:10.1f}   {date_of_max:<19}"
+                f"{minimum:10.1f}{average:10.1f}"
+            )
+            writer.writerow([site, maximum, date_of_max, minimum, average])
+
+
 sites = ["10163000", "10155200", "10155500", "10154200", "10155000"]
 dates, flows = load_streamflow("June-2021-Provo-River-Streamflow-Rates.csv")
+summarize(dates, flows, sites)
 plot_streamflow(dates, flows, sites)
