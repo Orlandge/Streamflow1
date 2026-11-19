@@ -58,4 +58,11 @@ def summarize(dates, flows, sites):
 sites = ["10163000", "10155200", "10155500", "10154200", "10155000"]
 dates, flows = load_streamflow("June-2021-Provo-River-Streamflow-Rates.csv")
 summarize(dates, flows, sites)
+
+# Count readings strictly above the user's threshold; each 15-minute reading represents 0.25 hours.
+threshold = float(input("Enter flow threshold (cfs): "))
+for column, site in enumerate(sites):
+    hours_above_threshold = np.sum(flows[:, column] > threshold) * 0.25
+    print(f"Site {site}: {hours_above_threshold:.2f} hours above {threshold:g} cfs")
+
 plot_streamflow(dates, flows, sites)
